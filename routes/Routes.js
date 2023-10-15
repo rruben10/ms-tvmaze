@@ -27,7 +27,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
-const showController = __importStar(require("../controllers/searchController"));
+const searchController = __importStar(require("../controllers/searchController"));
+const showController = __importStar(require("../controllers/showController"));
 const router = express_1.default.Router();
-router.get('/api/search', showController.getSearch);
+router.get('/api/search', searchController.getSearch);
+router.get('/api/show', showController.getShowById);
 exports.default = router;

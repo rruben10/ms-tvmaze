@@ -1,8 +1,11 @@
 import express from 'express';
 import Routes from './routes/Routes';
+import  {connectToDatabase} from './database/db';
 //import config from './config/configLoader';
 
 const app = express();
+
+connectToDatabase();
 
 app.use(Routes);
 
