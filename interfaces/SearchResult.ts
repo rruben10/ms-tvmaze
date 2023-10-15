@@ -25,7 +25,11 @@ interface SearchResult {
         webChannel: {
             id: number;
             name: string;
-            country: null;
+            country: null | {
+                name: string;
+                code: string;
+                timezone: string;
+            };
             officialSite: string;
         };
         // dvdCountry: null;
