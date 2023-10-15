@@ -1,4 +1,4 @@
-interface Show {
+interface IShowResult {
     id: number;
     url: string;
     name: string;
@@ -60,3 +60,5 @@ interface Show {
         };
     };
 }
+
+export default IShowResult;
