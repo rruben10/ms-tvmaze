@@ -9,6 +9,7 @@ const db_1 = require("./database/db");
 //import config from './config/configLoader';
 const app = (0, express_1.default)();
 (0, db_1.connectToDatabase)();
+app.use(express_1.default.json());
 app.use(Routes_1.default);
 const PORT = 3001;
 app.listen(PORT, () => {

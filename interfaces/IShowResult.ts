@@ -59,6 +59,11 @@ interface IShowResult {
             href: string;
         };
     };
+    comments: null | {
+        //id: number,
+        comment: string,
+        rating: number
+    };
 }
 
 export default IShowResult;

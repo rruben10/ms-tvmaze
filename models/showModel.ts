@@ -64,6 +64,11 @@ const ShowResultSchema: Schema = new Schema<ShowResultDocument>({
             href: { type: String, required: true },
         },
     },
+    comments: {
+        //id: { type: Number, required: true },
+        comment: { type: String, required: true },
+        rating: { type: Number, required: true },
+    }
 });
 
 const ShowResultModel = mongoose.model<ShowResultDocument>('ShowResult', ShowResultSchema);
