@@ -85,6 +85,11 @@ const ShowResultSchema = new mongoose_1.Schema({
             href: { type: String, required: true },
         },
     },
+    comments: {
+        //id: { type: Number, required: true },
+        comment: { type: String, required: true },
+        rating: { type: Number, required: true },
+    }
 });
 const ShowResultModel = mongoose_1.default.model('ShowResult', ShowResultSchema);
 exports.default = ShowResultModel;
