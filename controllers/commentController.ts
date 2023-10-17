@@ -1,8 +1,7 @@
 import { Request, Response } from 'express';
 import { connectToDatabase } from '../database/db';
-const { ObjectId } = require('mongodb');
-import axios from 'axios';
-import Show from '../models/showModel';
+import { PushOperator } from 'mongodb';
+import IComment from '../interfaces/IComment'
 
 export async function postCommentShow(req: Request, res: Response): Promise<void> {
     try {
@@ -15,40 +14,49 @@ export async function postCommentShow(req: Request, res: Response): Promise<void
             return;
         }
 
-        const objectId = new ObjectId(showId);
-
-        const db = await connectToDatabase();
-        const existingShow = await db.collection('shows').findOne({ id: showId });
-
-        if (!existingShow) {
-
-            const apiUrl = `https://api.tvmaze.com/shows/${showId}`;
-            const response = await axios.get(apiUrl);
-            const showData = response.data;
-
-            const nuevosDatos = {
-                $push: {
-                    comments: {
-                        comment: comment,
-                        rating: rating
-                    }
-                }
-            };
-
-            // Inserto el documento en la colección
-            await db.collection('shows').insertOne(showData);
-            await Show.findByIdAndUpdate(objectId, nuevosDatos, { new: true });
-        } else {
-            const nuevosDatos = {
-                $push: {
-                    comments: {
-                        comment: comment,
-                        rating: rating
-                    }
-                }
-            };
-            await Show.findByIdAndUpdate(objectId, nuevosDatos, { new: true });
+        if (comment === undefined || comment.trim() === '') {
+            res.status(400).json({ error: 'El campo de comentario es obligatorio y no puede estar vacío.' });
+            return;
         }
+
+        const newComment: IComment = {
+            comment: comment,
+            rating: rating,
+
+        };
+
+        async function addCommentToShow(showId: number, newComment: IComment) {
+            try {
+                const db = await connectToDatabase();
+                const collection = db.collection('shows');
+
+                const result = await collection.findOneAndUpdate(
+                    { id: showId },
+                    {
+                        $push: {
+                            comments: newComment
+                        } as unknown as PushOperator<Document>,
+                    },
+                    {
+                        returnDocument: 'after',
+                        upsert: false,
+                    }
+                );
+                
+                if (result?._id) {
+                    console.log('Comentario agregado correctamente:', result._id);
+                    return result._id;
+                } else {
+                    console.log('Show no encontrado');
+                    return null;
+                }
+            } catch (error) {
+                console.error('Error al agregar el comentario:', error);
+                throw error;
+            }
+        }
+
+        addCommentToShow(showId, newComment);
 
         res.status(200).json({ message: 'Comentario agregado correctamente' });
     } catch (error) {
