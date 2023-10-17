@@ -8,15 +8,9 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.postCommentShow = void 0;
 const db_1 = require("../database/db");
-const { ObjectId } = require('mongodb');
-const axios_1 = __importDefault(require("axios"));
-const showModel_1 = __importDefault(require("../models/showModel"));
 function postCommentShow(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
@@ -27,36 +21,43 @@ function postCommentShow(req, res) {
                 res.status(400).json({ error: 'El rating debe estar entre 0 y 5.' });
                 return;
             }
-            const objectId = new ObjectId(showId);
-            const db = yield (0, db_1.connectToDatabase)();
-            const existingShow = yield db.collection('shows').findOne({ id: showId });
-            if (!existingShow) {
-                const apiUrl = `https://api.tvmaze.com/shows/${showId}`;
-                const response = yield axios_1.default.get(apiUrl);
-                const showData = response.data;
-                const nuevosDatos = {
-                    $push: {
-                        comments: {
-                            comment: comment,
-                            rating: rating
+            if (comment === undefined || comment.trim() === '') {
+                res.status(400).json({ error: 'El campo de comentario es obligatorio y no puede estar vacío.' });
+                return;
+            }
+            const newComment = {
+                comment: comment,
+                rating: rating,
+            };
+            function addCommentToShow(showId, newComment) {
+                return __awaiter(this, void 0, void 0, function* () {
+                    try {
+                        const db = yield (0, db_1.connectToDatabase)();
+                        const collection = db.collection('shows');
+                        const result = yield collection.findOneAndUpdate({ id: showId }, {
+                            $push: {
+                                comments: newComment
+                            },
+                        }, {
+                            returnDocument: 'after',
+                            upsert: false,
+                        });
+                        if (result === null || result === void 0 ? void 0 : result._id) {
+                            console.log('Comentario agregado correctamente:', result._id);
+                            return result._id;
+                        }
+                        else {
+                            console.log('Show no encontrado');
+                            return null;
                         }
                     }
-                };
-                // Inserto el documento en la colección
-                yield db.collection('shows').insertOne(showData);
-                yield showModel_1.default.findByIdAndUpdate(objectId, nuevosDatos, { new: true });
-            }
-            else {
-                const nuevosDatos = {
-                    $push: {
-                        comments: {
-                            comment: comment,
-                            rating: rating
-                        }
+                    catch (error) {
+                        console.error('Error al agregar el comentario:', error);
+                        throw error;
                     }
-                };
-                yield showModel_1.default.findByIdAndUpdate(objectId, nuevosDatos, { new: true });
+                });
             }
+            addCommentToShow(showId, newComment);
             res.status(200).json({ message: 'Comentario agregado correctamente' });
         }
         catch (error) {

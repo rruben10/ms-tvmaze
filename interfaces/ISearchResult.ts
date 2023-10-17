@@ -3,7 +3,16 @@ interface ISearchResult {
         id: number;
         name: string;
         genres: string[];
-        network: null;
+        network: null | {
+            id: number;
+            name: string;
+            country: {
+                name: string;
+                code: string;
+                timezone: string;
+            };
+            officialSite: string;
+        };
         webChannel: {
             id: number;
             name: string;
@@ -16,6 +25,10 @@ interface ISearchResult {
         };
         summary: string;
         updated: number;
+        comments: null | {
+            comment: string,
+            rating: number
+        };
     };
 }
 

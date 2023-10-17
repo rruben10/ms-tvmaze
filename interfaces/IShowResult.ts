@@ -60,7 +60,6 @@ interface IShowResult {
         };
     };
     comments: null | {
-        //id: number,
         comment: string,
         rating: number
     };
