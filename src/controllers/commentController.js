@@ -8,9 +8,12 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.postCommentShow = void 0;
-const db_1 = require("../database/db");
+const commentService_1 = __importDefault(require("../services/commentService"));
 function postCommentShow(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
@@ -29,35 +32,8 @@ function postCommentShow(req, res) {
                 comment: comment,
                 rating: rating,
             };
-            function addCommentToShow(showId, newComment) {
-                return __awaiter(this, void 0, void 0, function* () {
-                    try {
-                        const db = yield (0, db_1.connectToDatabase)();
-                        const collection = db.collection('shows');
-                        const result = yield collection.findOneAndUpdate({ id: showId }, {
-                            $push: {
-                                comments: newComment
-                            },
-                        }, {
-                            returnDocument: 'after',
-                            upsert: false,
-                        });
-                        if (result === null || result === void 0 ? void 0 : result._id) {
-                            console.log('Comentario agregado correctamente:', result._id);
-                            return result._id;
-                        }
-                        else {
-                            console.log('Show no encontrado');
-                            return null;
-                        }
-                    }
-                    catch (error) {
-                        console.error('Error al agregar el comentario:', error);
-                        throw error;
-                    }
-                });
-            }
-            addCommentToShow(showId, newComment);
+            const commentService = new commentService_1.default();
+            commentService.addCommentToShow(showId, newComment);
             res.status(200).json({ message: 'Comentario agregado correctamente' });
         }
         catch (error) {

@@ -10,6 +10,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.connectToDatabase = void 0;
+require('dotenv').config();
 const mongodb_1 = require("mongodb");
 let cachedDb = null;
 function connectToDatabase() {
@@ -18,10 +19,10 @@ function connectToDatabase() {
             console.log('Utilizando la conexión de la caché');
             return cachedDb;
         }
-        const username = 'rruben10';
-        const password = 'wwOcDA2RBM59HsBq';
-        const clusterUrl = 'cluster0.svnqk3s.mongodb.net';
-        const dbName = 'tvmaze';
+        const username = process.env.MONGODB_USERNAME;
+        const password = process.env.MONGODB_PASSWORD;
+        const clusterUrl = process.env.MONGODB_CLUSTER_URL;
+        const dbName = process.env.MONGODB_DB_NAME;
         const uri = `mongodb+srv://${username}:${password}@${clusterUrl}/${dbName}?retryWrites=true&w=majority`;
         const client = new mongodb_1.MongoClient(uri);
         try {
